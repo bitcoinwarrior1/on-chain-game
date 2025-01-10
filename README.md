@@ -65,6 +65,15 @@ enum Phase {
 }
 ```
 
+### Events
+
+```solidity
+event WhiteListed(address indexed player);
+event WinningPositionSet(WinningPosition pos);
+event Played(address indexed player, Position pos);
+event Claimed(address indexed player);
+```
+
 ### setWhitelist
 
 <table>

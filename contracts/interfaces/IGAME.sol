@@ -18,8 +18,14 @@ interface IGAME {
         CLAIM
     }
 
+    event WhiteListed(address indexed player);
+    event WinningPositionSet(WinningPosition pos);
+    event Played(address indexed player, Position pos);
+    event Claimed(address indexed player);
+
     /*
      * @dev sets the whitelist, only players on the whitelist can participate
+     * @dev emits WhiteListed
      * @param players - an array of approved players
      */
     function setWhiteList(address[] calldata players) external;
@@ -35,6 +41,7 @@ interface IGAME {
      * @dev sets the winning position and radius
      * @dev can only be called by an admin
      * @dev calling this function ends the entry phase and starts the claim phase
+     * @dev emits WinningPositionSet
      * @param pos - the winning position
      */
     function setWinningPosition(WinningPosition calldata pos) external;
@@ -52,6 +59,7 @@ interface IGAME {
      * @dev allows the player to set a position
      * @dev costs 100 CREP
      * @dev player must be whitelisted, have the appropriate balance & have set an approval great enough
+     * @dev emits Played
      * @param pos - the position to set
      */
     function play(Position calldata pos) external;
@@ -65,6 +73,7 @@ interface IGAME {
     /*
      * @dev claim winnings for a particular player
      * @dev player must be within the winning radius
+     * @dev emits Claimed
      * @param winners - an array of winning players to claim
      */
     function claim(address[] calldata winners) external;
