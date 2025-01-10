@@ -1,34 +1,41 @@
 # NoirepTech EVM game
-This repo contains the smart contract code for NoirepTech's EVM game. This game allows players to select a unique point on an axis and win rewards if their pick is within the randomly generated radius. This randomly generated position must be provably random. 
+
+This repo contains the smart contract code for NoirepTech's EVM game. This game allows players to select a unique point on an axis and win rewards if their pick is within the randomly generated radius. This randomly generated position must be provably random.
 
 ## Getting started
+
 Install the dependencies with `npm i` & run the tests via `npx hardhat test`.
 
 ## Token
-`CREP` is an ERC20 token used in this smart contract to place bets and earn winnings. 
+
+`CREP` is an ERC20 token used in this smart contract to place bets and earn winnings.
 
 ## Roles
 
 ### Player
+
 A player can pick a position and double their money if their pick is within the chosen radius.
 
 ### Admin
+
 An admin is responsible for setting the winning radius.
 
 ## Phases
 
 ### Entry phase
+
 During the entry phase a player can choose a position on the xy axis. Each pick must be unique and costs 100 `CREP`. Each player can select only one position.
 
-Each player must be whitelisted to play. If they are not on the whitelist, they cannot play. 
+Each player must be whitelisted to play. If they are not on the whitelist, they cannot play.
 
 ### Claim phase
-During the claim phase players who selected a position within the winning radius can claim their reward of 200 `CREP`. Players who picked a position outside the radius cannot claim. 
+
+During the claim phase players who selected a position within the winning radius can claim their reward of 200 `CREP`. Players who picked a position outside the radius cannot claim.
 
 ## Contracts
 
 `CREP.sol` - the ERC20 token used to play the game.
-`Game.sol` - the smart contract that contains the logic to play the game. 
+`Game.sol` - the smart contract that contains the logic to play the game.
 
 ## Architecture
 
@@ -58,8 +65,8 @@ enum Phase {
 }
 ```
 
-
 ### setWhitelist
+
 <table>
   <tr>
    <td><strong>Name</strong>
@@ -79,7 +86,7 @@ enum Phase {
   </tr>
 </table>
 
-Whitelisted addresses are stored in a mapping, and checked when a player makes a bet. 
+Whitelisted addresses are stored in a mapping, and checked when a player makes a bet.
 
 This function can only be called by an `admin`.
 
@@ -104,9 +111,10 @@ This function can only be called by an `admin`.
   </tr>
 </table>
 
-Returns `true` if whitelisted, else `false`. 
+Returns `true` if whitelisted, else `false`.
 
 ### setWinningPosition
+
 Set the winning position and radius. Calling this function ends the `entry` phase and commences the `claim` phase.
 
 <table>
@@ -151,7 +159,7 @@ This function can only be called by an `admin`.
   </tr>
 </table>
 
-This function hashes the position and checks it against a mapping. If the position does not exist, it returns `true`, else `false`. 
+This function hashes the position and checks it against a mapping. If the position does not exist, it returns `true`, else `false`.
 
 ### play
 
@@ -174,9 +182,9 @@ This function hashes the position and checks it against a mapping. If the positi
   </tr>
 </table>
 
-This function can only be called by a `whitelisted` address during the entry phase. The address must have approved the contract to spend `CREP` and the player must have at least 100 `CREP`.  
+This function can only be called by a `whitelisted` address during the entry phase. The address must have approved the contract to spend `CREP` and the player must have at least 100 `CREP`.
 
-This function requires that the position is unique, and that a player can only play once. 
+This function requires that the position is unique, and that a player can only play once.
 
 ### getCurrentPhase
 
@@ -195,7 +203,7 @@ This function requires that the position is unique, and that a player can only p
   </tr>
 </table>
 
-Returns the current `Phase`. 
+Returns the current `Phase`.
 
 ### claim
 
@@ -218,5 +226,27 @@ Returns the current `Phase`.
   </tr>
 </table>
 
-This function claims the winnings for a selected player. This can only be called during the claim phase and will revert if a players position is not inside the winning radius. 
+This function claims the winnings for a selected player. This can only be called during the claim phase and will revert if a players position is not inside the winning radius.
 
+### getIsWinner
+
+<table>
+  <tr>
+   <td><strong>Name</strong>
+   </td>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td><code>getIsWinner</code>
+   </td>
+    <td><code>address</code>
+    </td>
+   <td>The address of the player to check
+   </td>
+  </tr>
+</table>
+
+This function calculates if a player's position is within the winning radius. Must be in the claim phase to call this function.
