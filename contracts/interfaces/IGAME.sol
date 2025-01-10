@@ -22,7 +22,7 @@ interface IGAME {
      * @dev sets the whitelist, only players on the whitelist can participate
      * @param players - an array of approved players
      */
-    function setWhiteList(address[] players) external;
+    function setWhiteList(address[] calldata players) external;
 
     /*
      * @dev checks if a given user is on the whitelist
@@ -37,7 +37,7 @@ interface IGAME {
      * @dev calling this function ends the entry phase and starts the claim phase
      * @param pos - the winning position
      */
-    function setWinningPosition(WinningPosition pos) external;
+    function setWinningPosition(WinningPosition calldata pos) external;
 
     /*
      * @dev checks if the position is unique
@@ -46,7 +46,7 @@ interface IGAME {
      * @param pos - the position to check
      * @return true if unique, else false
      */
-    function getIsPositionUnique(Position pos) external returns (bool);
+    function getIsPositionUnique(Position calldata pos) external returns (bool);
 
     /*
      * @dev allows the player to set a position
@@ -54,7 +54,7 @@ interface IGAME {
      * @dev player must be whitelisted, have the appropriate balance & have set an approval great enough
      * @param pos - the position to set
      */
-    function play(Position pos) external;
+    function play(Position calldata pos) external;
 
     /*
      * @dev gets the current phase by checking if a winning position has been set or not
@@ -67,7 +67,7 @@ interface IGAME {
      * @dev player must be within the winning radius
      * @param winners - an array of winning players to claim
      */
-    function claim(address[] winners) external;
+    function claim(address[] calldata winners) external;
 
     /*
      * @dev check if a player is within the winning radius

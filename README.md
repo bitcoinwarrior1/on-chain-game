@@ -43,16 +43,16 @@ During the claim phase players who selected a position within the winning radius
 
 ```solidity
 struct WinningPosition {
-    uint256 x;
-    uint256 y;
-    uint256 radius;
+  uint256 x;
+  uint256 y;
+  uint256 radius;
 }
 ```
 
 ```solidity
 struct Position {
-    uint256 x;
-    uint256 y;
+  uint256 x;
+  uint256 y;
 }
 ```
 
@@ -60,8 +60,8 @@ struct Position {
 
 ```solidity
 enum Phase {
-    ENTRY,
-    CLAIM
+  ENTRY,
+  CLAIM
 }
 ```
 

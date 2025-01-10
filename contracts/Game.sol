@@ -3,4 +3,4 @@ pragma solidity ^0.8.28;
 
 import {IGAME} from "./interfaces/IGAME.sol";
 
-contract Game is IGAME {}
+/* is IGAME */ contract Game {}
