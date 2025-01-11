@@ -99,29 +99,6 @@ Whitelisted addresses are stored in a mapping, and checked when a player makes a
 
 This function can only be called by an `admin`.
 
-### getIsWhitelisted
-
-<table>
-  <tr>
-   <td><strong>Name</strong>
-   </td>
-   <td><strong>Type</strong>
-   </td>
-   <td><strong>Description</strong>
-   </td>
-  </tr>
-  <tr>
-   <td><code>getIsWhitelisted</code>
-   </td>
-   <td><code>address</code>
-   </td>
-   <td>The address of the player to check
-   </td>
-  </tr>
-</table>
-
-Returns `true` if whitelisted, else `false`.
-
 ### setWinningPosition
 
 Set the winning position and radius. Calling this function ends the `entry` phase and commences the `claim` phase.
@@ -145,7 +122,7 @@ Set the winning position and radius. Calling this function ends the `entry` phas
   </tr>
 </table>
 
-This function can only be called by an `admin`.
+This function can only be called by an `admin`. Positions must be within 100k \* 100k.
 
 ### getIsPositionUnique
 
@@ -193,7 +170,7 @@ This function hashes the position and checks it against a mapping. If the positi
 
 This function can only be called by a `whitelisted` address during the entry phase. The address must have approved the contract to spend `CREP` and the player must have at least 100 `CREP`.
 
-This function requires that the position is unique, and that a player can only play once.
+This function requires that the position is unique, within bounds (100k \* 100k), and that a player can only play once.
 
 ### gaslessEnter
 
@@ -221,25 +198,6 @@ This function requires that the position is unique, and that a player can only p
 </table>
 
 This function is like enter, except a paymaster covers the gas and provides the signature of the player. This function reverts if the signature recovery does not match a valid player.
-
-### getCurrentPhase
-
-<table>
-  <tr>
-   <td><strong>Name</strong>
-   </td>
-   <td><strong>Type</strong>
-   </td>
-   <td><strong>Description</strong>
-   </td>
-  </tr>
-  <tr>
-   <td><code>getCurrentPhase</code>
-   </td>
-  </tr>
-</table>
-
-Returns the current `Phase`.
 
 ### claim
 

@@ -31,13 +31,6 @@ interface IGAME {
     function setWhiteList(address[] calldata players) external;
 
     /*
-     * @dev checks if a given user is on the whitelist
-     * @param player - the address of the player to check
-     * @return true if the player is whitelist, else false
-     */
-    function getIsWhitelisted(address player) external view returns (bool);
-
-    /*
      * @dev sets the winning position and radius
      * @dev can only be called by an admin
      * @dev calling this function ends the entry phase and starts the claim phase
@@ -77,12 +70,6 @@ interface IGAME {
         Position calldata pos,
         bytes calldata signature
     ) external;
-
-    /*
-     * @dev gets the current phase by checking if a winning position has been set or not
-     * @return Phase.ENTRY if a winning position has not been set, else PHASE.CLAIM
-     */
-    function getCurrentPhase() external returns (Phase);
 
     /*
      * @dev claim winnings for a particular player
