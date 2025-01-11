@@ -62,7 +62,21 @@ interface IGAME {
      * @dev emits Played
      * @param pos - the position to set
      */
-    function play(Position calldata pos) external;
+    function enter(Position calldata pos) external;
+
+    /*
+     * @dev allows the player to set a position without paying gas
+     * @dev costs 100 CREP
+     * @dev player must be whitelisted, have the appropriate balance & have set an approval great enough
+     * @dev reverts if the signature verification fails
+     * @dev emits Played
+     * @param pos - the position to set
+     * @param signature - the signature of the player (the message is the position data)
+     */
+    function gaslessEnter(
+        Position calldata pos,
+        bytes calldata signature
+    ) external;
 
     /*
      * @dev gets the current phase by checking if a winning position has been set or not

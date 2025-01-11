@@ -170,7 +170,7 @@ This function can only be called by an `admin`.
 
 This function hashes the position and checks it against a mapping. If the position does not exist, it returns `true`, else `false`.
 
-### play
+### enter
 
 <table>
   <tr>
@@ -182,7 +182,7 @@ This function hashes the position and checks it against a mapping. If the positi
    </td>
   </tr>
   <tr>
-   <td><code>play</code>
+   <td><code>enter</code>
    </td>
    <td><code>Position</code>
    </td>
@@ -194,6 +194,33 @@ This function hashes the position and checks it against a mapping. If the positi
 This function can only be called by a `whitelisted` address during the entry phase. The address must have approved the contract to spend `CREP` and the player must have at least 100 `CREP`.
 
 This function requires that the position is unique, and that a player can only play once.
+
+### gaslessEnter
+
+<table>
+  <tr>
+   <td><strong>Name</strong>
+   </td>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td><code>gaslessEnter</code>
+   </td>
+   <td><code>Position</code>
+   </td>
+   <td>The position selected by a player
+   </td>
+    <td><code>signature</code>
+    </td>
+   <td>The signature of the player
+   </td>
+  </tr>
+</table>
+
+This function is like enter, except a paymaster covers the gas and provides the signature of the player. This function reverts if the signature recovery does not match a valid player.
 
 ### getCurrentPhase
 
