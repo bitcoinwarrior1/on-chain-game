@@ -64,11 +64,15 @@ interface IGAME {
      * @dev reverts if the signature verification fails
      * @dev emits Played
      * @param pos - the position to set
-     * @param signature - the signature of the player (the message is the position data)
+     * @param v - signature param
+     * @param r - signature param
+     * @param s - signature param
      */
     function gaslessEnter(
         Position calldata pos,
-        bytes calldata signature
+        uint8 v,
+        bytes32 r,
+        bytes32 s
     ) external;
 
     /*
@@ -84,5 +88,5 @@ interface IGAME {
      * @param player - the address of the player to check
      * @return true if within, else false
      */
-    function getIsWinner(address player) external view;
+    function getIsWinner(address player) external view returns (bool);
 }

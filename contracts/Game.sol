@@ -69,33 +69,85 @@ contract Game is IGAME {
      * @dev see IGame.sol
      */
     function enter(Position calldata pos) external {
-        require(whitelisted[msg.sender], "Game.sol: address not whitelisted");
+        _enter(pos, msg.sender);
+    }
+
+    /*
+     * @dev internal function to handle entries
+     */
+    function _enter(Position calldata pos, address user) internal {
+        require(whitelisted[user], "Game.sol: address not whitelisted");
         require(
-            positions[msg.sender].x == 0,
+            positions[user].x == 0,
             "Game.sol: player already has a position"
         );
-        require(crep.transferFrom(msg.sender, address(this), playAmount));
+        require(crep.transferFrom(user, address(this), playAmount));
         require(pos.x <= 100_000, "Game.sol: x out of bounds");
         require(pos.y <= 100_000, "Game.sol: y out of bounds");
         require(getIsPositionUnique(pos), "Game.sol: position not unique");
-        positions[msg.sender] = pos;
+        positions[user] = pos;
     }
 
     /*
      * @dev see IGame.sol
      */
+    // TODO update docs
     function gaslessEnter(
         Position calldata pos,
-        bytes calldata signature
-    ) external {}
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) external {
+        // TODO handle message string changes
+        bytes32 messageHash = keccak256(
+            abi.encodePacked(pos.x, pos.y, address(this))
+        );
+        address player = ecrecover(messageHash, v, r, s);
+        _enter(pos, player);
+    }
 
     /*
      * @dev see IGame.sol
      */
-    function claim(address[] calldata winners) external {}
+    function claim(address[] calldata players) external {
+        for (uint i = 0; i < players.length; i++) {
+            bool won = getIsWinner(players[i]);
+            if (won) require(crep.transfer(players[i], winAmount));
+        }
+    }
 
     /*
      * @dev see IGame.sol
      */
-    function getIsWinner(address player) external view {}
+    function getIsWinner(address player) public view returns (bool) {
+        require(
+            currentPhase == Phase.CLAIM,
+            "Game.sol: winning position has not been set yet"
+        );
+        Position memory pos = positions[player];
+        return
+            _isWithinRadius(
+                pos.x,
+                pos.y,
+                winningPos.x,
+                winningPos.y,
+                winningPos.radius
+            );
+    }
+
+    /*
+     * @dev check whether a player's selection is within the winning range
+     * @dev returns true if within the range, else false
+     */
+    function _isWithinRadius(
+        uint256 x1,
+        uint256 y1,
+        uint256 x2,
+        uint256 y2,
+        uint256 radius
+    ) internal pure returns (bool) {
+        uint256 dx = x1 > x2 ? x1 - x2 : x2 - x1;
+        uint256 dy = y1 > y2 ? y1 - y2 : y2 - y1;
+        return dx * dx + dy * dy <= radius * radius;
+    }
 }
