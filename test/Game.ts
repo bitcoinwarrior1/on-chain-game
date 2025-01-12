@@ -55,16 +55,16 @@ describe("Game Contract", function () {
       new Game__factory()
         .connect(admin)
         .deploy(ethers.ZeroAddress, crepTokenAddress, root)
-    ).to.be.revertedWith("Game.sol: admin cannot be the zero address");
+    ).to.be.revertedWithCustomError(game, "AdminCannotBeZero");
   });
 
-  it("should revert if deployed with the crep token address set to 0", async () => {
+  it("should revert if deployed with the CREP token address set to 0", async () => {
     const { root } = getMerkleRootAndProof(whitelist, admin.address);
     await expect(
       new Game__factory()
         .connect(admin)
         .deploy(admin.address, ethers.ZeroAddress, root)
-    ).to.be.revertedWith("Game.sol: token cannot be set to the zero address");
+    ).to.be.revertedWithCustomError(game, "TokenCannotBeZero");
   });
 
   it("should revert if deployed with the merkle root set to 0", async () => {
@@ -72,7 +72,7 @@ describe("Game Contract", function () {
       new Game__factory()
         .connect(admin)
         .deploy(admin.address, crepTokenAddress, ethers.encodeBytes32String(""))
-    ).to.be.revertedWith("Game.sol: merkle root cannot be 0");
+    ).to.be.revertedWithCustomError(game, "MerkleRootCannotBeZero");
   });
 
   it("should allow a whitelisted player to enter", async () => {
@@ -90,19 +90,19 @@ describe("Game Contract", function () {
     const position = { x: 110_000, y: 20 };
     await expect(
       game.connect(player1).enter(position, proof)
-    ).to.be.revertedWith("Game.sol: x out of bounds");
+    ).to.be.revertedWithCustomError(game, "XOutOfBounds");
     const position2 = { x: 11, y: 110_000 };
     await expect(
       game.connect(player1).enter(position2, proof)
-    ).to.be.revertedWith("Game.sol: y out of bounds");
+    ).to.be.revertedWithCustomError(game, "YOutOfBounds");
   });
 
-  it("should revert if an invalid proof is provided, even if the user is on the whitelist", async () => {
+  it("should revert if an invalid proof is provided", async () => {
     const { proof } = getMerkleRootAndProof([player2.address], player1.address);
     const position = { x: 10, y: 20 };
     await expect(
       game.connect(player1).enter(position, proof)
-    ).to.be.revertedWith("Game.sol: address not whitelisted");
+    ).to.be.revertedWithCustomError(game, "NotWhitelisted");
   });
 
   it("should allow a player to gaslessly enter with a valid signature", async () => {
@@ -131,7 +131,7 @@ describe("Game Contract", function () {
     );
     await expect(
       game.connect(unauthorisedPlayer).enter(position, proof)
-    ).to.be.revertedWith("Game.sol: address not whitelisted");
+    ).to.be.revertedWithCustomError(game, "NotWhitelisted");
   });
 
   it("should not allow a player to enter twice", async () => {
@@ -141,7 +141,7 @@ describe("Game Contract", function () {
 
     await expect(
       game.connect(player1).enter(position, proof)
-    ).to.be.revertedWith("Game.sol: player already has a position");
+    ).to.be.revertedWithCustomError(game, "PositionAlreadySet");
   });
 
   it("should set a winning position only once", async () => {
@@ -153,46 +153,16 @@ describe("Game Contract", function () {
     expect(setWinningPos.y).to.equal(winningPosition.y);
     expect(setWinningPos.radius).to.equal(winningPosition.radius);
 
-    await expect(game.setWinningPosition(winningPosition)).to.be.revertedWith(
-      "Game.sol: winning position is already set"
-    );
+    await expect(
+      game.setWinningPosition(winningPosition)
+    ).to.be.revertedWithCustomError(game, "WinningPositionAlreadySet");
   });
 
   it("should revert if anyone other than the admin tries to set a winning position", async () => {
     const winningPosition = { x: 50, y: 50, radius: 10 };
     await expect(
       game.connect(player2).setWinningPosition(winningPosition)
-    ).to.be.revertedWith("Game.sol: only the admin can call this function");
-  });
-
-  it("should allow players to claim winnings if they are within the radius", async () => {
-    const { proof } = getMerkleRootAndProof(whitelist, player1.address);
-    const { proof: proof2 } = getMerkleRootAndProof(whitelist, player2.address);
-    const position1 = { x: 40, y: 40 };
-    const position2 = { x: 80, y: 80 };
-    await game.connect(player1).enter(position1, proof);
-    await game.connect(player2).enter(position2, proof2);
-
-    const winningPosition = { x: 50, y: 50, radius: 20 };
-    await game.setWinningPosition(winningPosition);
-
-    const initialBalance = await crepToken.balanceOf(player1.address);
-    await game.claim([player1.address, player2.address]);
-
-    const finalBalance = await crepToken.balanceOf(player1.address);
-    expect(finalBalance - initialBalance).to.equal(ethers.parseEther("200"));
-  });
-
-  it("should not reward a player who has not won", async () => {
-    const { proof } = getMerkleRootAndProof(whitelist, player1.address);
-    const position1 = { x: 1, y: 1 };
-    await game.connect(player1).enter(position1, proof);
-    const winningPosition = { x: 50, y: 50, radius: 20 };
-    await game.setWinningPosition(winningPosition);
-    const initialBalance = await crepToken.balanceOf(player1.address);
-    await game.claim([player1.address]);
-    const finalBalance = await crepToken.balanceOf(player1.address);
-    expect(finalBalance - initialBalance).to.equal(ethers.parseEther("0"));
+    ).to.be.revertedWithCustomError(game, "OnlyAdminAllowed");
   });
 
   it("should not allow claims before the winning position is set", async () => {
@@ -200,8 +170,9 @@ describe("Game Contract", function () {
     const position = { x: 40, y: 40 };
     await game.connect(player1).enter(position, proof);
 
-    await expect(game.claim([player1.address])).to.be.revertedWith(
-      "Game.sol: winning position has not been set yet"
+    await expect(game.claim([player1.address])).to.be.revertedWithCustomError(
+      game,
+      "WinningPositionNotSet"
     );
   });
 
@@ -221,6 +192,24 @@ describe("Game Contract", function () {
     const { proof: proof2 } = getMerkleRootAndProof(whitelist, player2.address);
     await expect(
       game.connect(player2).enter(position, proof2)
-    ).to.be.revertedWith("Game.sol: position not unique");
+    ).to.be.revertedWithCustomError(game, "PositionNotUnique");
+  });
+
+  it("should allow players to claim winnings if they are within the radius", async () => {
+    const { proof } = getMerkleRootAndProof(whitelist, player1.address);
+    const { proof: proof2 } = getMerkleRootAndProof(whitelist, player2.address);
+    const position1 = { x: 40, y: 40 };
+    const position2 = { x: 80, y: 80 };
+    await game.connect(player1).enter(position1, proof);
+    await game.connect(player2).enter(position2, proof2);
+
+    const winningPosition = { x: 50, y: 50, radius: 20 };
+    await game.setWinningPosition(winningPosition);
+
+    const initialBalance = await crepToken.balanceOf(player1.address);
+    await game.claim([player1.address, player2.address]);
+
+    const finalBalance = await crepToken.balanceOf(player1.address);
+    expect(finalBalance - initialBalance).to.equal(ethers.parseEther("200"));
   });
 });

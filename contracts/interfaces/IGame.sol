@@ -2,6 +2,19 @@
 pragma solidity ^0.8.28;
 
 interface IGame {
+    error AdminCannotBeZero();
+    error TokenCannotBeZero();
+    error MerkleRootCannotBeZero();
+    error OnlyAdminAllowed();
+    error WinningPositionAlreadySet();
+    error NotWhitelisted();
+    error PositionAlreadySet();
+    error TransferFailed();
+    error XOutOfBounds();
+    error YOutOfBounds();
+    error PositionNotUnique();
+    error WinningPositionNotSet();
+
     struct WinningPosition {
         uint256 x;
         uint256 y;

@@ -37,6 +37,7 @@ During the claim phase players who selected a position within the winning radius
 ## Contracts
 
 `CREP.sol` - the ERC20 token used to play the game. This token is based off OZ's ERC20 implementation.
+`IGame.sol` - The interface for `Game.sol`.
 `Game.sol` - the smart contract that contains the logic to play the game.
 `MerkleProof.sol` - OZ's smart contract to verify merkle proofs.
 
@@ -76,6 +77,23 @@ enum Phase {
 event WinningPositionSet(WinningPosition pos);
 event Played(address indexed player, Position pos);
 event Claimed(address indexed player);
+```
+
+### Error codes
+
+```solidity
+error AdminCannotBeZero();
+error TokenCannotBeZero();
+error MerkleRootCannotBeZero();
+error OnlyAdminAllowed();
+error WinningPositionAlreadySet();
+error NotWhitelisted();
+error PositionAlreadySet();
+error TransferFailed();
+error XOutOfBounds();
+error YOutOfBounds();
+error PositionNotUnique();
+error WinningPositionNotSet();
 ```
 
 ### Whitelist

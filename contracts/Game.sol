@@ -5,7 +5,6 @@ import "./interfaces/IGame.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 
-// TODO use reverts to save gas
 contract Game is IGame {
     address public admin;
     IERC20 immutable crep;
@@ -19,15 +18,9 @@ contract Game is IGame {
     mapping(address => bool) public claimed;
 
     constructor(address _admin, IERC20 _crepToken, bytes32 _merkleRoot) {
-        require(
-            _admin != address(0),
-            "Game.sol: admin cannot be the zero address"
-        );
-        require(_merkleRoot != bytes32(0), "Game.sol: merkle root cannot be 0");
-        require(
-            _crepToken != IERC20(address(0)),
-            "Game.sol: token cannot be set to the zero address"
-        );
+        if (_admin == address(0)) revert AdminCannotBeZero();
+        if (_merkleRoot == bytes32(0)) revert MerkleRootCannotBeZero();
+        if (_crepToken == IERC20(address(0))) revert TokenCannotBeZero();
         admin = _admin;
         currentPhase = Phase.ENTRY;
         crep = _crepToken;
@@ -38,14 +31,8 @@ contract Game is IGame {
      * @dev see IGame.sol
      */
     function setWinningPosition(WinningPosition calldata pos) external {
-        require(
-            msg.sender == admin,
-            "Game.sol: only the admin can call this function"
-        );
-        require(
-            winningPos.radius == 0,
-            "Game.sol: winning position is already set"
-        );
+        if (msg.sender != admin) revert OnlyAdminAllowed();
+        if (winningPos.radius != 0) revert WinningPositionAlreadySet();
         winningPos = pos;
         currentPhase = Phase.CLAIM;
         emit WinningPositionSet(pos);
@@ -76,23 +63,20 @@ contract Game is IGame {
         address user,
         bytes32[] calldata proof
     ) internal {
-        require(
-            MerkleProof.verify(
+        if (
+            !MerkleProof.verify(
                 proof,
                 merkleRootWhitelist,
                 keccak256(abi.encodePacked(user))
-            ),
-            "Game.sol: address not whitelisted"
-        );
-        require(
-            positions[user].x == 0,
-            "Game.sol: player already has a position"
-        );
-        require(crep.transferFrom(user, address(this), playAmount));
-        require(pos.x <= 100_000, "Game.sol: x out of bounds");
-        require(pos.y <= 100_000, "Game.sol: y out of bounds");
-        require(getIsPositionUnique(pos), "Game.sol: position not unique");
-        // TODO refactor
+            )
+        ) revert NotWhitelisted();
+        if (positions[user].x != 0) revert PositionAlreadySet();
+        if (!crep.transferFrom(user, address(this), playAmount))
+            revert TransferFailed();
+        if (pos.x > 100_000) revert XOutOfBounds();
+        if (pos.y > 100_000) revert YOutOfBounds();
+        if (!getIsPositionUnique(pos)) revert PositionNotUnique();
+
         bytes32 hash = keccak256(abi.encodePacked(pos.x, pos.y));
         posHashes[hash] = true;
         positions[user] = pos;
@@ -144,7 +128,8 @@ contract Game is IGame {
         for (uint i = 0; i < players.length; i++) {
             bool won = getIsWinner(players[i]);
             if (won && !claimed[players[i]]) {
-                require(crep.transfer(players[i], winAmount));
+                if (!crep.transfer(players[i], winAmount))
+                    revert TransferFailed();
                 claimed[players[i]] = true;
                 emit Claimed(players[i]);
             }
@@ -155,10 +140,7 @@ contract Game is IGame {
      * @dev see IGame.sol
      */
     function getIsWinner(address player) public view returns (bool) {
-        require(
-            currentPhase == Phase.CLAIM,
-            "Game.sol: winning position has not been set yet"
-        );
+        if (currentPhase != Phase.CLAIM) revert WinningPositionNotSet();
         Position memory pos = positions[player];
         return
             _isWithinRadius(
