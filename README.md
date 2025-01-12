@@ -8,6 +8,20 @@ Install the dependencies with `npm i` & run the tests via `npx hardhat test`.
 
 To get code coverage run `npx hardhat coverage`.
 
+## Potential issues
+
+### Default risk
+
+If the winnings exceed the balance of the contract, some winners will be unable to claim their funds.
+
+### Inability to withdraw excess funds
+
+If winnings are less than the total put in, there is no way for these excess funds to be withdrawn.
+
+### Recommendation
+
+I recommend that we review the design of this game with the client.
+
 ## Token
 
 `CREP` is an ERC20 token used in this smart contract to place bets and earn winnings.
