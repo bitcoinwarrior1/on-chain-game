@@ -96,19 +96,38 @@ contract Game is IGame {
     /*
      * @dev see IGame.sol
      */
-    // TODO update docs
     function gaslessEnter(
         Position calldata pos,
         uint8 v,
         bytes32 r,
         bytes32 s
     ) external {
-        // TODO handle message string changes
         bytes32 messageHash = keccak256(
             abi.encodePacked(pos.x, pos.y, address(this))
         );
-        address player = ecrecover(messageHash, v, r, s);
+        address player = _getSignerFromMsgAndSig(messageHash, v, r, s);
         _enter(pos, player);
+    }
+
+    /*
+     * @dev do signature verification on the message hash with the prefix added
+     * @param _hashedMessage - the hashed message
+     * @param _v - signature param
+     * @param _r - signature param
+     * @param _s - signature param
+     * @return the ecrecovered address
+     */
+    function _getSignerFromMsgAndSig(
+        bytes32 _hashedMessage,
+        uint8 _v,
+        bytes32 _r,
+        bytes32 _s
+    ) internal pure returns (address) {
+        bytes memory prefix = "\x19Ethereum Signed Message:\n32";
+        bytes32 prefixedHashMessage = keccak256(
+            abi.encodePacked(prefix, _hashedMessage)
+        );
+        return ecrecover(prefixedHashMessage, _v, _r, _s);
     }
 
     /*

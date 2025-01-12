@@ -199,7 +199,7 @@ This function requires that the position is unique, within bounds (100k \* 100k)
   </tr>
 </table>
 
-This function is like enter, except a paymaster covers the gas and provides the signature of the player. This function reverts if the signature recovery does not match a valid player.
+This function is like enter, except a paymaster covers the gas and provides the signature of the player. This function reverts if the signature recovery does not match a valid player. Players must sign the a hashed message including the position struct and contract address. An implementation of this can be found in the test suite.
 
 ### claim
 

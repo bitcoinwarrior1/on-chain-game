@@ -4,6 +4,7 @@ import { Game, CREP, CREP__factory, Game__factory } from "../typechain-types";
 
 describe("Game Contract", function () {
   let game: Game;
+  let gameAddress: string;
   let crepTokenAddress;
   let crepToken: CREP;
   let admin: SignerWithAddress;
@@ -22,7 +23,7 @@ describe("Game Contract", function () {
     game = await new Game__factory()
       .connect(deployer)
       .deploy(admin, crepTokenAddress);
-    const gameAddress = await game.getAddress();
+    gameAddress = await game.getAddress();
 
     await crepToken.mint(player1.address, ethers.parseEther("100"));
     await crepToken.mint(player2.address, ethers.parseEther("100"));
@@ -51,6 +52,24 @@ describe("Game Contract", function () {
     const position = { x: 10, y: 20 };
     await game.connect(player1).enter(position);
 
+    const playerPosition = await game.positions(player1.address);
+    expect(playerPosition.x).to.equal(position.x);
+    expect(playerPosition.y).to.equal(position.y);
+  });
+
+  it("should allow a player to gaslessly enter with a valid signature", async () => {
+    const position = { x: 42, y: 88 };
+    const messageHash = ethers.solidityPackedKeccak256(
+      ["uint256", "uint256", "address"],
+      [position.x, position.y, gameAddress]
+    );
+    const messageBytes = Uint8Array.from(
+      Buffer.from(messageHash.slice(2), "hex")
+    );
+    const signature = await player1.signMessage(messageBytes);
+    const { v, r, s } = ethers.Signature.from(signature);
+    await game.setWhiteList([player1.address]);
+    await game.connect(admin).gaslessEnter(position, v, r, s);
     const playerPosition = await game.positions(player1.address);
     expect(playerPosition.x).to.equal(position.x);
     expect(playerPosition.y).to.equal(position.y);
