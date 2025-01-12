@@ -3,12 +3,13 @@ pragma solidity ^0.8.28;
 
 import "./interfaces/IGame.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 
 // TODO use reverts to save gas
 contract Game is IGame {
     address public admin;
     IERC20 crep;
-    mapping(address => bool) public whitelisted;
+    bytes32 public merkleRootWhitelist;
     WinningPosition public winningPos;
     Phase public currentPhase;
     mapping(address => Position) public positions;
@@ -17,26 +18,15 @@ contract Game is IGame {
     uint winAmount = 200 ether;
     mapping(address => bool) public claimed;
 
-    constructor(address _admin, IERC20 _crepToken) {
-        // TODO check 0 address
-        // TODO set initial whitelist?
+    constructor(address _admin, IERC20 _crepToken, bytes32 _merkleRoot) {
+        require(
+            _admin != address(0),
+            "Game.sol: admin cannot be the zero address"
+        );
         admin = _admin;
         currentPhase = Phase.ENTRY;
         crep = _crepToken;
-    }
-
-    /*
-     * @dev see IGame.sol
-     */
-    function setWhiteList(address[] calldata players) external {
-        require(
-            msg.sender == admin,
-            "Game.sol: only the admin can call this function"
-        );
-        for (uint i = 0; i < players.length; i++) {
-            whitelisted[players[i]] = true;
-            emit WhiteListed(players[i]);
-        }
+        merkleRootWhitelist = _merkleRoot;
     }
 
     /*
@@ -69,15 +59,26 @@ contract Game is IGame {
     /*
      * @dev see IGame.sol
      */
-    function enter(Position calldata pos) external {
-        _enter(pos, msg.sender);
+    function enter(Position calldata pos, bytes32[] calldata proof) external {
+        _enter(pos, msg.sender, proof);
     }
 
     /*
      * @dev internal function to handle entries
      */
-    function _enter(Position calldata pos, address user) internal {
-        require(whitelisted[user], "Game.sol: address not whitelisted");
+    function _enter(
+        Position calldata pos,
+        address user,
+        bytes32[] calldata proof
+    ) internal {
+        require(
+            MerkleProof.verify(
+                proof,
+                merkleRootWhitelist,
+                keccak256(abi.encodePacked(user))
+            ),
+            "Game.sol: address not whitelisted"
+        );
         require(
             positions[user].x == 0,
             "Game.sol: player already has a position"
@@ -100,13 +101,14 @@ contract Game is IGame {
         Position calldata pos,
         uint8 v,
         bytes32 r,
-        bytes32 s
+        bytes32 s,
+        bytes32[] calldata proof
     ) external {
         bytes32 messageHash = keccak256(
             abi.encodePacked(pos.x, pos.y, address(this))
         );
         address player = _getSignerFromMsgAndSig(messageHash, v, r, s);
-        _enter(pos, player);
+        _enter(pos, player, proof);
     }
 
     /*

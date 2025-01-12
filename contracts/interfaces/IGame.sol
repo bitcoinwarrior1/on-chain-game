@@ -18,17 +18,9 @@ interface IGame {
         CLAIM
     }
 
-    event WhiteListed(address indexed player);
     event WinningPositionSet(WinningPosition pos);
     event Entered(address indexed player, Position pos);
     event Claimed(address indexed player);
-
-    /*
-     * @dev sets the whitelist, only players on the whitelist can participate
-     * @dev emits WhiteListed
-     * @param players - an array of approved players
-     */
-    function setWhiteList(address[] calldata players) external;
 
     /*
      * @dev sets the winning position and radius
@@ -54,8 +46,9 @@ interface IGame {
      * @dev player must be whitelisted, have the appropriate balance & have set an approval great enough
      * @dev emits Played
      * @param pos - the position to set
+     * @param proof - the merkle proof for the whitelist
      */
-    function enter(Position calldata pos) external;
+    function enter(Position calldata pos, bytes32[] calldata proof) external;
 
     /*
      * @dev allows the player to set a position without paying gas
@@ -67,12 +60,14 @@ interface IGame {
      * @param v - signature param
      * @param r - signature param
      * @param s - signature param
+     * @param proof - the merkle proof for the whitelist
      */
     function gaslessEnter(
         Position calldata pos,
         uint8 v,
         bytes32 r,
-        bytes32 s
+        bytes32 s,
+        bytes32[] calldata proof
     ) external;
 
     /*

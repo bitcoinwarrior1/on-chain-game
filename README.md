@@ -70,36 +70,10 @@ enum Phase {
 ### Events
 
 ```solidity
-event WhiteListed(address indexed player);
 event WinningPositionSet(WinningPosition pos);
 event Played(address indexed player, Position pos);
 event Claimed(address indexed player);
 ```
-
-### setWhitelist
-
-<table>
-  <tr>
-   <td><strong>Name</strong>
-   </td>
-   <td><strong>Type</strong>
-   </td>
-   <td><strong>Description</strong>
-   </td>
-  </tr>
-  <tr>
-   <td><code>setWhitelist</code>
-   </td>
-   <td><code>address[]</code>
-   </td>
-   <td>An array of player addresses to whitelist
-   </td>
-  </tr>
-</table>
-
-Whitelisted addresses are stored in a mapping, and checked when a player makes a bet.
-
-This function can only be called by an `admin`.
 
 ### setWinningPosition
 
@@ -168,6 +142,14 @@ This function hashes the position and checks it against a mapping. If the positi
    <td>The position selected by a player
    </td>
   </tr>
+<tr>
+   <td><code>proof</code>
+   </td>
+   <td><code>bytes32[]</code>
+   </td>
+   <td>The merkle proof that the player is included in the whitelist
+   </td>
+  </tr>
 </table>
 
 This function can only be called by a `whitelisted` address during the entry phase. The address must have approved the contract to spend `CREP` and the player must have at least 100 `CREP`.
@@ -195,6 +177,14 @@ This function requires that the position is unique, within bounds (100k \* 100k)
     <td><code>signature</code>
     </td>
    <td>The signature of the player
+   </td>
+  </tr>
+<tr>
+   <td><code>proof</code>
+   </td>
+   <td><code>bytes32[]</code>
+   </td>
+   <td>The merkle proof that the player is included in the whitelist
    </td>
   </tr>
 </table>
