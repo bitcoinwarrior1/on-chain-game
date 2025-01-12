@@ -118,7 +118,7 @@ Set the winning position and radius. Calling this function ends the `entry` phas
    </td>
   </tr>
   <tr>
-   <td><code>setWinningPosition</code>
+   <td><code>pos</code>
    </td>
    <td><code>WinningPosition</code>
    </td>
@@ -141,7 +141,7 @@ This function can only be called by an `admin`. Positions must be within 100k \*
    </td>
   </tr>
   <tr>
-   <td><code>getIsPositionUnique</code>
+   <td><code>pos</code>
    </td>
    <td><code>Position</code>
    </td>
@@ -164,7 +164,7 @@ This function hashes the position and checks it against a mapping. If the positi
    </td>
   </tr>
   <tr>
-   <td><code>enter</code>
+   <td><code>pos</code>
    </td>
    <td><code>Position</code>
    </td>
@@ -197,17 +197,31 @@ This function requires that the position is unique, within bounds (100k \* 100k)
    </td>
   </tr>
   <tr>
-   <td><code>gaslessEnter</code>
+   <td><code>pos</code>
    </td>
    <td><code>Position</code>
    </td>
    <td>The position selected by a player
    </td>
-    <td><code>signature</code>
+<tr>
+<td><code>v</code>
     </td>
-   <td>The signature of the player
+   <td><code>uint8</code>
    </td>
-  </tr>
+</tr>
+    <tr>
+<td><code>r</code>
+    </td>
+   <td><code>bytes32</code>
+   </td>
+</tr>
+<tr>
+<td><code>s</code>
+    </td>
+   <td><code>bytes32</code>
+   </td>
+</tr>
+
 <tr>
    <td><code>proof</code>
    </td>
@@ -232,11 +246,11 @@ This function is like enter, except a paymaster covers the gas and provides the 
    </td>
   </tr>
   <tr>
-   <td><code>Claim</code>
+   <td><code>winners</code>
    </td>
-    <td><code>address</code>
+    <td><code>address[]</code>
     </td>
-   <td>The address of the player to claim
+   <td>The addresses of the players to claim
    </td>
   </tr>
 </table>
@@ -255,7 +269,7 @@ This function claims the winnings for a selected player. This can only be called
    </td>
   </tr>
   <tr>
-   <td><code>getIsWinner</code>
+   <td><code>player</code>
    </td>
     <td><code>address</code>
     </td>
