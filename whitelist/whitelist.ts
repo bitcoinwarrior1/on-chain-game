@@ -1,4 +1,4 @@
-export const whitelistSample = [
+export const whitelist = [
   "0x2d5E26d881a79d517a677a49fb76fFCe17793473",
   "0xDc4c0bD2Ac6DA497593B8b3Db110621C2Ffe5f84",
   "0x4c9856e58615eBAB82B9BF0aaABd329D296349ca",

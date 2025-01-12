@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
 import { Game, CREP, CREP__factory, Game__factory } from "../typechain-types";
-import { whitelistSample } from "../whitelist/whitelistSample";
+import { whitelist as whitelistSample } from "../whitelist/whitelist";
 import { getMerkleRootAndProof } from "../whitelist/merkle";
 
 describe("Game Contract", function () {
