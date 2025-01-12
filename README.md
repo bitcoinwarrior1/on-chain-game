@@ -36,10 +36,10 @@ During the claim phase players who selected a position within the winning radius
 
 ## Contracts
 
-`CREP.sol` - the ERC20 token used to play the game. This token is based off OZ's ERC20 implementation.
-`IGame.sol` - The interface for `Game.sol`.
-`Game.sol` - the smart contract that contains the logic to play the game.
-`MerkleProof.sol` - OZ's smart contract to verify merkle proofs.
+- `CREP.sol` - the ERC20 token used to play the game. This token is based off OZ's ERC20 implementation.
+- `IGame.sol` - The interface for `Game.sol`.
+- `Game.sol` - the smart contract that contains the logic to play the game.
+- `MerkleProof.sol` - OZ's smart contract to verify merkle proofs.
 
 See https://github.com/OpenZeppelin/openzeppelin-contracts/releases/tag/v5.2.0 for more info (including tests) on the OZ contracts used here.
 
