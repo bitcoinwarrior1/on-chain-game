@@ -207,7 +207,12 @@ describe("Game Contract", function () {
     await game.setWinningPosition(winningPosition);
 
     const initialBalance = await crepToken.balanceOf(player1.address);
+    const initialBalance2 = await crepToken.balanceOf(player2.address);
     await game.claim([player1.address, player2.address]);
+    expect(initialBalance2).to.equal(
+      0,
+      "player 2 should not have won anything"
+    );
 
     const finalBalance = await crepToken.balanceOf(player1.address);
     expect(finalBalance - initialBalance).to.equal(ethers.parseEther("200"));
