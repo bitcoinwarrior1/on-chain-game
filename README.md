@@ -8,6 +8,8 @@ Install the dependencies with `npm i` & run the tests via `npx hardhat test`.
 
 To get code coverage run `npx hardhat coverage`.
 
+To deploy the contracts run `npx hardhat run scripts/deploy.ts --network YOUR_NETWORK`.
+
 ## Potential issues
 
 ### Default risk
