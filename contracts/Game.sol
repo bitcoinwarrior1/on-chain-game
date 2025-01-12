@@ -70,13 +70,13 @@ contract Game is IGame {
                 keccak256(abi.encodePacked(user))
             )
         ) revert NotWhitelisted();
-        if (positions[user].x != 0) revert PositionAlreadySet();
+        if (positions[user].x != 0 && positions[user].y != 0)
+            revert PositionAlreadySet();
         if (!crep.transferFrom(user, address(this), playAmount))
             revert TransferFailed();
         if (pos.x > 100_000) revert XOutOfBounds();
         if (pos.y > 100_000) revert YOutOfBounds();
         if (!getIsPositionUnique(pos)) revert PositionNotUnique();
-
         bytes32 hash = keccak256(abi.encodePacked(pos.x, pos.y));
         posHashes[hash] = true;
         positions[user] = pos;
