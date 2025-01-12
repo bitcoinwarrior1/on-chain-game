@@ -7,7 +7,7 @@ import { getMerkleRootAndProof } from "../whitelist/merkle";
 describe("Game Contract", function () {
   let game: Game;
   let gameAddress: string;
-  let crepTokenAddress;
+  let crepTokenAddress: string;
   let crepToken: CREP;
   let admin: SignerWithAddress;
   let player1: SignerWithAddress;
@@ -47,6 +47,32 @@ describe("Game Contract", function () {
     await crepToken
       .connect(player2)
       .approve(gameAddress, ethers.parseEther("100"));
+  });
+
+  it("should revert if deployed with the admin address set to 0", async () => {
+    const { root } = getMerkleRootAndProof(whitelist, admin.address);
+    await expect(
+      new Game__factory()
+        .connect(admin)
+        .deploy(ethers.ZeroAddress, crepTokenAddress, root)
+    ).to.be.revertedWith("Game.sol: admin cannot be the zero address");
+  });
+
+  it("should revert if deployed with the crep token address set to 0", async () => {
+    const { root } = getMerkleRootAndProof(whitelist, admin.address);
+    await expect(
+      new Game__factory()
+        .connect(admin)
+        .deploy(admin.address, ethers.ZeroAddress, root)
+    ).to.be.revertedWith("Game.sol: token cannot be set to the zero address");
+  });
+
+  it("should revert if deployed with the merkle root set to 0", async () => {
+    await expect(
+      new Game__factory()
+        .connect(admin)
+        .deploy(admin.address, crepTokenAddress, ethers.encodeBytes32String(""))
+    ).to.be.revertedWith("Game.sol: merkle root cannot be 0");
   });
 
   it("should allow a whitelisted player to enter", async () => {
@@ -155,6 +181,18 @@ describe("Game Contract", function () {
 
     const finalBalance = await crepToken.balanceOf(player1.address);
     expect(finalBalance - initialBalance).to.equal(ethers.parseEther("200"));
+  });
+
+  it("should not reward a player who has not won", async () => {
+    const { proof } = getMerkleRootAndProof(whitelist, player1.address);
+    const position1 = { x: 1, y: 1 };
+    await game.connect(player1).enter(position1, proof);
+    const winningPosition = { x: 50, y: 50, radius: 20 };
+    await game.setWinningPosition(winningPosition);
+    const initialBalance = await crepToken.balanceOf(player1.address);
+    await game.claim([player1.address]);
+    const finalBalance = await crepToken.balanceOf(player1.address);
+    expect(finalBalance - initialBalance).to.equal(ethers.parseEther("0"));
   });
 
   it("should not allow claims before the winning position is set", async () => {

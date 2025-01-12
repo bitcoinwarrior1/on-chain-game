@@ -23,6 +23,11 @@ contract Game is IGame {
             _admin != address(0),
             "Game.sol: admin cannot be the zero address"
         );
+        require(_merkleRoot != bytes32(0), "Game.sol: merkle root cannot be 0");
+        require(
+            _crepToken != IERC20(address(0)),
+            "Game.sol: token cannot be set to the zero address"
+        );
         admin = _admin;
         currentPhase = Phase.ENTRY;
         crep = _crepToken;
