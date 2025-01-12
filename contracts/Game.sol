@@ -1,12 +1,11 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.28;
 
-import "./interfaces/IGAME.sol";
+import "./interfaces/IGame.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 // TODO use reverts to save gas
-// TODO add withdraw for excess funds in the pool
-contract Game is IGAME {
+contract Game is IGame {
     address public admin;
     IERC20 crep;
     mapping(address => bool) public whitelisted;
@@ -16,6 +15,7 @@ contract Game is IGAME {
     mapping(bytes32 => bool) public posHashes;
     uint playAmount = 100 ether;
     uint winAmount = 200 ether;
+    mapping(address => bool) public claimed;
 
     constructor(address _admin, IERC20 _crepToken) {
         // TODO check 0 address
@@ -35,6 +35,7 @@ contract Game is IGAME {
         );
         for (uint i = 0; i < players.length; i++) {
             whitelisted[players[i]] = true;
+            emit WhiteListed(players[i]);
         }
     }
 
@@ -62,7 +63,7 @@ contract Game is IGAME {
         Position calldata pos
     ) public view returns (bool) {
         bytes32 hash = keccak256(abi.encodePacked(pos.x, pos.y));
-        return posHashes[hash];
+        return !posHashes[hash];
     }
 
     /*
@@ -85,7 +86,11 @@ contract Game is IGAME {
         require(pos.x <= 100_000, "Game.sol: x out of bounds");
         require(pos.y <= 100_000, "Game.sol: y out of bounds");
         require(getIsPositionUnique(pos), "Game.sol: position not unique");
+        // TODO refactor
+        bytes32 hash = keccak256(abi.encodePacked(pos.x, pos.y));
+        posHashes[hash] = true;
         positions[user] = pos;
+        emit Entered(user, pos);
     }
 
     /*
@@ -112,7 +117,11 @@ contract Game is IGAME {
     function claim(address[] calldata players) external {
         for (uint i = 0; i < players.length; i++) {
             bool won = getIsWinner(players[i]);
-            if (won) require(crep.transfer(players[i], winAmount));
+            if (won && !claimed[players[i]]) {
+                require(crep.transfer(players[i], winAmount));
+                claimed[players[i]] = true;
+                emit Claimed(players[i]);
+            }
         }
     }
 

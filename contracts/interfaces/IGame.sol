@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.28;
 
-interface IGAME {
+interface IGame {
     struct WinningPosition {
         uint256 x;
         uint256 y;
@@ -20,7 +20,7 @@ interface IGAME {
 
     event WhiteListed(address indexed player);
     event WinningPositionSet(WinningPosition pos);
-    event Played(address indexed player, Position pos);
+    event Entered(address indexed player, Position pos);
     event Claimed(address indexed player);
 
     /*

@@ -6,6 +6,8 @@ This repo contains the smart contract code for NoirepTech's EVM game. This game 
 
 Install the dependencies with `npm i` & run the tests via `npx hardhat test`.
 
+To get code coverage run `npx hardhat coverage`;
+
 ## Token
 
 `CREP` is an ERC20 token used in this smart contract to place bets and earn winnings.
