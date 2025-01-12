@@ -8,14 +8,14 @@ import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 // TODO use reverts to save gas
 contract Game is IGame {
     address public admin;
-    IERC20 crep;
-    bytes32 public merkleRootWhitelist;
+    IERC20 immutable crep;
+    bytes32 public immutable merkleRootWhitelist;
     WinningPosition public winningPos;
     Phase public currentPhase;
     mapping(address => Position) public positions;
     mapping(bytes32 => bool) public posHashes;
-    uint playAmount = 100 ether;
-    uint winAmount = 200 ether;
+    uint public immutable playAmount = 100 ether;
+    uint public immutable winAmount = 200 ether;
     mapping(address => bool) public claimed;
 
     constructor(address _admin, IERC20 _crepToken, bytes32 _merkleRoot) {
