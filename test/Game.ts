@@ -59,6 +59,18 @@ describe("Game Contract", function () {
     expect(playerPosition.y).to.equal(position.y);
   });
 
+  it("should revert if either axis is out of bounds", async () => {
+    const { proof } = getMerkleRootAndProof(whitelist, player1.address);
+    const position = { x: 110_000, y: 20 };
+    await expect(
+      game.connect(player1).enter(position, proof)
+    ).to.be.revertedWith("Game.sol: x out of bounds");
+    const position2 = { x: 11, y: 110_000 };
+    await expect(
+      game.connect(player1).enter(position2, proof)
+    ).to.be.revertedWith("Game.sol: y out of bounds");
+  });
+
   it("should revert if an invalid proof is provided, even if the user is on the whitelist", async () => {
     const { proof } = getMerkleRootAndProof([player2.address], player1.address);
     const position = { x: 10, y: 20 };
@@ -120,6 +132,13 @@ describe("Game Contract", function () {
     );
   });
 
+  it("should revert if anyone other than the admin tries to set a winning position", async () => {
+    const winningPosition = { x: 50, y: 50, radius: 10 };
+    await expect(
+      game.connect(player2).setWinningPosition(winningPosition)
+    ).to.be.revertedWith("Game.sol: only the admin can call this function");
+  });
+
   it("should allow players to claim winnings if they are within the radius", async () => {
     const { proof } = getMerkleRootAndProof(whitelist, player1.address);
     const { proof: proof2 } = getMerkleRootAndProof(whitelist, player2.address);
@@ -155,5 +174,15 @@ describe("Game Contract", function () {
     await game.connect(player1).enter(position1, proof);
     const isUnique = await game.getIsPositionUnique(position2);
     expect(isUnique).to.be.false;
+  });
+
+  it("should revert if a position is not unique", async () => {
+    const position = { x: 10, y: 10 };
+    const { proof } = getMerkleRootAndProof(whitelist, player1.address);
+    await game.connect(player1).enter(position, proof);
+    const { proof: proof2 } = getMerkleRootAndProof(whitelist, player2.address);
+    await expect(
+      game.connect(player2).enter(position, proof2)
+    ).to.be.revertedWith("Game.sol: position not unique");
   });
 });
