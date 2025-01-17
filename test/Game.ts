@@ -236,4 +236,19 @@ describe("Game Contract", function () {
       game.connect(player1).enter(position1, proof)
     ).to.be.revertedWithCustomError(game, "ZeroPosition");
   });
+
+  it("should revert if a winning position has invalid values", async () => {
+    const invalidPosition = { x: 0, y: 0, radius: 0 };
+    await expect(
+      game.setWinningPosition(invalidPosition)
+    ).to.be.revertedWithCustomError(game, "ZeroPosition");
+    const invalidPosition2 = { x: 111_111, y: 10, radius: 10 };
+    await expect(
+      game.setWinningPosition(invalidPosition2)
+    ).to.be.revertedWithCustomError(game, "XOutOfBounds");
+    const invalidPosition3 = { x: 10, y: 111_111, radius: 10 };
+    await expect(
+      game.setWinningPosition(invalidPosition3)
+    ).to.be.revertedWithCustomError(game, "YOutOfBounds");
+  });
 });

@@ -33,6 +33,10 @@ contract Game is IGame {
     function setWinningPosition(WinningPosition calldata pos) external {
         if (msg.sender != admin) revert OnlyAdminAllowed();
         if (winningPos.radius != 0) revert WinningPositionAlreadySet();
+        if (pos.radius == 0 || (pos.x == 0 && pos.y == 0))
+            revert ZeroPosition();
+        if (pos.x > 100_000) revert XOutOfBounds();
+        if (pos.y > 100_000) revert YOutOfBounds();
         winningPos = pos;
         currentPhase = Phase.CLAIM;
         emit WinningPositionSet(pos);
