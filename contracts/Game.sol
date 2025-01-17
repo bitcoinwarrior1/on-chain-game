@@ -131,6 +131,7 @@ contract Game is IGame {
      * @dev see IGame.sol
      */
     function claim(address[] calldata players) external {
+        if (currentPhase != Phase.CLAIM) revert WinningPositionNotSet();
         for (uint i = 0; i < players.length; i++) {
             bool won = getIsWinner(players[i]);
             if (won && !claimed[players[i]]) {
@@ -146,7 +147,7 @@ contract Game is IGame {
      * @dev see IGame.sol
      */
     function getIsWinner(address player) public view returns (bool) {
-        if (currentPhase != Phase.CLAIM) revert WinningPositionNotSet();
+        if (currentPhase != Phase.CLAIM) return false;
         Position memory pos = positions[player];
         return
             _isWithinRadius(

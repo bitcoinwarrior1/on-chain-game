@@ -250,5 +250,15 @@ describe("Game Contract", function () {
     await expect(
       game.setWinningPosition(invalidPosition3)
     ).to.be.revertedWithCustomError(game, "YOutOfBounds");
+
+    const invalidPosition4 = { x: 10, y: 10, radius: 0 };
+    await expect(
+      game.setWinningPosition(invalidPosition4)
+    ).to.be.revertedWithCustomError(game, "ZeroPosition");
+
+    const invalidPosition5 = { x: 0, y: 0, radius: 10 };
+    await expect(
+      game.setWinningPosition(invalidPosition5)
+    ).to.be.revertedWithCustomError(game, "ZeroPosition");
   });
 });
