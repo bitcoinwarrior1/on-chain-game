@@ -110,6 +110,7 @@ error XOutOfBounds();
 error YOutOfBounds();
 error PositionNotUnique();
 error WinningPositionNotSet();
+error IncorrectPhase();
 ```
 
 ### Whitelist

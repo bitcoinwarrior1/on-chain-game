@@ -63,6 +63,7 @@ contract Game is IGame {
         address user,
         bytes32[] calldata proof
     ) internal {
+        if (currentPhase != Phase.ENTRY) revert IncorrectPhase();
         if (
             !MerkleProof.verify(
                 proof,

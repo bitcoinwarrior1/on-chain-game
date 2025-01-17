@@ -217,4 +217,15 @@ describe("Game Contract", function () {
     const finalBalance = await crepToken.balanceOf(player1.address);
     expect(finalBalance - initialBalance).to.equal(ethers.parseEther("200"));
   });
+
+  it("should revert if a player tries to enter in the claim phase", async () => {
+    const winningPosition = { x: 50, y: 50, radius: 20 };
+    await game.setWinningPosition(winningPosition);
+
+    const { proof } = getMerkleRootAndProof(whitelist, player1.address);
+    const position1 = { x: 40, y: 40 };
+    await expect(
+      game.connect(player1).enter(position1, proof)
+    ).to.be.revertedWithCustomError(game, "IncorrectPhase");
+  });
 });

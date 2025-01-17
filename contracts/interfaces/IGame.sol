@@ -14,6 +14,7 @@ interface IGame {
     error YOutOfBounds();
     error PositionNotUnique();
     error WinningPositionNotSet();
+    error IncorrectPhase();
 
     struct WinningPosition {
         uint256 x;
