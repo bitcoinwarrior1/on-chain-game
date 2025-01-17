@@ -77,6 +77,7 @@ contract Game is IGame {
             revert TransferFailed();
         if (pos.x > 100_000) revert XOutOfBounds();
         if (pos.y > 100_000) revert YOutOfBounds();
+        if (pos.x == 0 && pos.y == 0) revert ZeroPosition();
         if (!getIsPositionUnique(pos)) revert PositionNotUnique();
         bytes32 hash = keccak256(abi.encodePacked(pos.x, pos.y));
         posHashes[hash] = true;

@@ -228,4 +228,12 @@ describe("Game Contract", function () {
       game.connect(player1).enter(position1, proof)
     ).to.be.revertedWithCustomError(game, "IncorrectPhase");
   });
+
+  it("should revert if a player tries to enter with x and y set to zero", async () => {
+    const { proof } = getMerkleRootAndProof(whitelist, player1.address);
+    const position1 = { x: 0, y: 0 };
+    await expect(
+      game.connect(player1).enter(position1, proof)
+    ).to.be.revertedWithCustomError(game, "ZeroPosition");
+  });
 });

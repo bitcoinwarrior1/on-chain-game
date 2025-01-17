@@ -12,6 +12,7 @@ interface IGame {
     error TransferFailed();
     error XOutOfBounds();
     error YOutOfBounds();
+    error ZeroPosition();
     error PositionNotUnique();
     error WinningPositionNotSet();
     error IncorrectPhase();
