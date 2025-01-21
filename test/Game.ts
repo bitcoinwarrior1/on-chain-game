@@ -218,6 +218,13 @@ describe("Game Contract", function () {
     expect(finalBalance - initialBalance).to.equal(ethers.parseEther("200"));
   });
 
+  it("should not allow a non player to claim", async () => {
+    const winningPosition = { x: 50, y: 50, radius: 20 };
+    await game.setWinningPosition(winningPosition);
+    const isWinner = await game.getIsWinner(player2.address);
+    expect(isWinner).to.equal(false);
+  });
+
   it("should revert if a player tries to enter in the claim phase", async () => {
     const winningPosition = { x: 50, y: 50, radius: 20 };
     await game.setWinningPosition(winningPosition);

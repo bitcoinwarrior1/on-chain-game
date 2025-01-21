@@ -12,6 +12,7 @@ contract Game is IGame {
     WinningPosition public winningPos;
     Phase public currentPhase;
     mapping(address => Position) public positions;
+    mapping(address => bool) public entered;
     mapping(bytes32 => bool) public posHashes;
     uint public immutable playAmount = 100 ether;
     uint public immutable winAmount = 200 ether;
@@ -75,8 +76,7 @@ contract Game is IGame {
                 keccak256(abi.encodePacked(user))
             )
         ) revert NotWhitelisted();
-        if (positions[user].x != 0 && positions[user].y != 0)
-            revert PositionAlreadySet();
+        if (entered[user]) revert PositionAlreadySet();
         if (!crep.transferFrom(user, address(this), playAmount))
             revert TransferFailed();
         if (pos.x > 100_000) revert XOutOfBounds();
@@ -86,6 +86,7 @@ contract Game is IGame {
         bytes32 hash = keccak256(abi.encodePacked(pos.x, pos.y));
         posHashes[hash] = true;
         positions[user] = pos;
+        entered[user] = true;
         emit Entered(user, pos);
     }
 
@@ -148,6 +149,7 @@ contract Game is IGame {
      */
     function getIsWinner(address player) public view returns (bool) {
         if (currentPhase != Phase.CLAIM) return false;
+        if (!entered[player]) return false;
         Position memory pos = positions[player];
         return
             _isWithinRadius(
